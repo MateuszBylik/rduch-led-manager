@@ -67,7 +67,16 @@
         </div>
       </div>
     
-      <input type="text" id="searchInput" placeholder="Szukaj pieśni...">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Szukaj pieśni...">
+        <button id="clearSearchBtn" class="clear-btn" style="display: none;" title="Wyczyść">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
     
       <div id="errorBox"
         style="display: none; background: #ff555544; border: 1px solid #ff5555; padding: 10px; margin: 10px 0; border-radius: 4px;">
@@ -80,37 +89,70 @@
       <div id="libraryTree" style="flex-grow: 1; overflow-y: auto; margin-top: 10px;">
       </div>
     </aside>
-  
-    <main class="panel editor-panel">
-      <h2>Edytor (20x10 Kwadrat)</h2>
     
-      <div class="toolbar">
-        <div class="btn-group">
-          <button id="btnLeft" title="Wyrównaj do lewej">⫷ Lewo</button>
-          <button id="btnCenter" title="Wyśrodkuj">≣ Środek</button>
-          <button id="btnRight" title="Wyrównaj do prawej">⫸ Prawo</button>
-        </div>
-        <div class="btn-group">
-          <button id="btnUpper" title="Wielkie litery">AA</button>
-          <button id="btnLower" title="Małe litery">aa</button>
-        </div>
+    <main class="panel tabs-panel" style="flex: 2; display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+      <div class="tabs-header">
+        <button class="tab-btn active" id="tabPreview">Podgląd</button>
+        <button class="tab-btn" id="tabLists">Listy</button>
       </div>
     
-      <div class="rduch-simulator-wrapper">
-        <canvas id="rduchCanvas"></canvas>
-        <textarea id="songEditor" spellcheck="false"></textarea>
+      <div class="tabs-content">
+        <div id="viewPreview" class="tab-view active">
+    
+          <div class="preview-header">
+            <div class="preview-title-block">
+              <span class="preview-number" id="previewNumber">#----</span>
+              <span class="preview-song-title" id="previewSongTitle">Wybierz pieśń z listy po lewej</span>
+            </div>
+            <button id="btnEdit" class="secondary-btn icon-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Edytuj
+            </button>
+          </div>
+    
+          <div class="preview-layout">
+            <div class="preview-sequence" id="previewSequence">
+              <div style="padding: 20px; color: #666; text-align: center;">Brak wczytanej sekwencji</div>
+            </div>
+    
+            <div class="preview-matrix-area">
+              <div class="rduch-simulator-wrapper" style="margin: 0 auto;">
+                <canvas id="rduchCanvas"></canvas>
+              </div>
+    
+              <div class="preview-controls">
+                <button id="btnPrevScreen" class="secondary-btn icon-btn" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                  Poprzedni
+                </button>
+                <span id="screenCounter"
+                  style="color: #888; font-size: 0.9rem; font-weight: bold; min-width: 60px; text-align: center;">0 /
+                  0</span>
+                <button id="btnNextScreen" class="secondary-btn icon-btn" disabled>
+                  Następny
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+    
+        </div>
+    
+        <div id="viewLists" class="tab-view" style="display: none; padding: 20px;">
+          <h3>Zarządzanie listami (wkrótce)</h3>
+        </div>
       </div>
     </main>
-  
-    <aside class="panel playlist-panel">
-      <h2>Karta SD (Playlista)</h2>
-      <div class="playlist-info">
-        <p>Msza: <strong>Niedziela 12:00</strong></p>
-      </div>
-      <ul id="playlist" class="item-list">
-      </ul>
-      <button id="exportBtn" class="success-btn">Zapisz na kartę</button>
-    </aside>
   </div>
 </body>
 

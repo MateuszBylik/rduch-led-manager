@@ -53,13 +53,14 @@ fn get_drives() -> Vec<DriveInfo> {
     let mut drives = Vec::new();
     
     for disk in disks.list() {
-        drives.push(DriveInfo {
-            name: disk.name().to_string_lossy().to_string(),
-            mount_point: disk.mount_point().to_string_lossy().to_string(),
-            is_removable: disk.is_removable(),
-        });
+        if disk.is_removable() {
+            drives.push(DriveInfo {
+                name: disk.name().to_string_lossy().to_string(),
+                mount_point: disk.mount_point().to_string_lossy().to_string(),
+                is_removable: true,
+            });
+        }
     }
-    drives.sort_by(|a, b| b.is_removable.cmp(&a.is_removable));
     drives
 }
 
@@ -142,10 +143,15 @@ fn load_sd_card(path: String) -> Option<ParseResult> {
     Some(ParseResult { path: path_str, errors, playlists, screens, categories })
 }
 
+#[tauri::command]
+fn read_file_content(path: String) -> Result<Vec<u8>, String> {
+    std::fs::read(&path).map_err(|e| e.to_string())
+}
+
 fn main() {
     tauri::Builder::default()
         // DODANO: get_drives (to naprawia błąd ładowania dysków)
-        .invoke_handler(tauri::generate_handler![get_drives, load_sd_card, open_in_explorer])
+        .invoke_handler(tauri::generate_handler![get_drives, load_sd_card, open_in_explorer, read_file_content])
         .run(tauri::generate_context!())
         .expect("Błąd podczas uruchamiania aplikacji Rduch LED!");
 }

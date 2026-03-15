@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "RDuch LED",
+        "title": "Rduch LED",
         "width": 800,
         "height": 600,
         "decorations": false

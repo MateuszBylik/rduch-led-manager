@@ -13,9 +13,10 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "rduch-led-manager",
+        "title": "RDuch LED",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "decorations": false
       }
     ],
     "security": {

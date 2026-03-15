@@ -1,43 +1,90 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/src/main.ts" defer></script>
-  </head>
 
-  <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="/src/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rduch LED</title>
+  <script type="module" src="/src/main.ts" defer></script>
+</head>
 
-      <div class="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/src/assets/vite.svg" class="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img
-            src="/src/assets/tauri.svg"
-            class="logo tauri"
-            alt="Tauri logo"
-          />
-        </a>
-        <a href="https://www.typescriptlang.org/docs" target="_blank">
-          <img
-            src="/src/assets/typescript.svg"
-            class="logo typescript"
-            alt="typescript logo"
-          />
-        </a>
+<body>
+  <div data-tauri-drag-region class="titlebar">
+    <div data-tauri-drag-region class="titlebar-title">Rduch Tablica Edytor</div>
+    <div class="titlebar-buttons">
+      <div class="titlebar-btn" id="titlebar-minimize">_</div>
+      <div class="titlebar-btn" id="titlebar-maximize">◻</div>
+      <div class="titlebar-btn" id="titlebar-close">✕</div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <aside class="panel library-panel">
+      <h2>Biblioteka Pieśni</h2>
+      <div class="drive-selector-container">
+        <button id="loadSdBtn" class="primary-btn reactive-btn">
+          <svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+            <path d="M12 18h.01"></path>
+            <path d="M8 18h.01"></path>
+            <path d="M16 18h.01"></path>
+            <path d="M4 8h16"></path>
+            <path d="M4 12h16"></path>
+          </svg>
+          <span id="loadSdBtnText">Wybierz kartę pamięci...</span>
+        </button>
+      
+        <div id="driveList" class="drive-list" style="display: none;">
+        </div>
       </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
-
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
+    
+      <input type="text" id="searchInput" placeholder="Szukaj pieśni...">
+    
+      <div id="errorBox"
+        style="display: none; background: #ff555544; border: 1px solid #ff5555; padding: 10px; margin: 10px 0; border-radius: 4px;">
+        <h3 style="color: #ff5555; font-size: 1rem; margin-bottom: 5px;">⚠️ Znaleziono problemy:</h3>
+        <ul id="errorList" style="list-style: none; color: #ff9999; font-size: 0.85rem; margin-bottom: 10px;"></ul>
+        <button id="openExplorerBtn" class="primary-btn" style="width: 100%; font-size: 0.85rem;">Otwórz lokalizację
+          plików</button>
+      </div>
+    
+      <div id="libraryTree" style="flex-grow: 1; overflow-y: auto; margin-top: 10px;">
+      </div>
+    </aside>
+  
+    <main class="panel editor-panel">
+      <h2>Edytor (20x10 Kwadrat)</h2>
+    
+      <div class="toolbar">
+        <div class="btn-group">
+          <button id="btnLeft" title="Wyrównaj do lewej">⫷ Lewo</button>
+          <button id="btnCenter" title="Wyśrodkuj">≣ Środek</button>
+          <button id="btnRight" title="Wyrównaj do prawej">⫸ Prawo</button>
+        </div>
+        <div class="btn-group">
+          <button id="btnUpper" title="Wielkie litery">AA</button>
+          <button id="btnLower" title="Małe litery">aa</button>
+        </div>
+      </div>
+    
+      <div class="rduch-simulator-wrapper">
+        <canvas id="rduchCanvas"></canvas>
+        <textarea id="songEditor" spellcheck="false"></textarea>
+      </div>
     </main>
-  </body>
+  
+    <aside class="panel playlist-panel">
+      <h2>Karta SD (Playlista)</h2>
+      <div class="playlist-info">
+        <p>Msza: <strong>Niedziela 12:00</strong></p>
+      </div>
+      <ul id="playlist" class="item-list">
+      </ul>
+      <button id="exportBtn" class="success-btn">Zapisz na kartę</button>
+    </aside>
+  </div>
+</body>
+
 </html>

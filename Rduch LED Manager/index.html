@@ -4,18 +4,45 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="/src/styles.css" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Rduch LED</title>
   <script type="module" src="/src/main.ts" defer></script>
 </head>
 
 <body>
   <div data-tauri-drag-region class="titlebar">
-    <div data-tauri-drag-region class="titlebar-title">Rduch Tablica Edytor</div>
+    <div class="titlebar-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120" width="100%" height="100%">
+        <rect width="90" height="120" rx="15" fill="#111" stroke="#000" stroke-width="4" />
+        <g fill="#ffaa00">
+          <circle cx="15" cy="15" r="5" />
+          <circle cx="30" cy="15" r="5" />
+          <circle cx="45" cy="15" r="5" />
+          <circle cx="60" cy="15" r="5" />
+          <circle cx="15" cy="30" r="5" />
+          <circle cx="75" cy="30" r="5" />
+          <circle cx="15" cy="45" r="5" />
+          <circle cx="75" cy="45" r="5" />
+          <circle cx="15" cy="60" r="5" />
+          <circle cx="30" cy="60" r="5" />
+          <circle cx="45" cy="60" r="5" />
+          <circle cx="60" cy="60" r="5" />
+          <circle cx="15" cy="75" r="5" />
+          <circle cx="45" cy="75" r="5" />
+          <circle cx="15" cy="90" r="5" />
+          <circle cx="60" cy="90" r="5" />
+          <circle cx="15" cy="105" r="5" />
+          <circle cx="75" cy="105" r="5" />
+        </g>
+      </svg>
+    </div>
+  
+    <div data-tauri-drag-region class="titlebar-title">Rduch LED</div>
+  
     <div class="titlebar-buttons">
-      <div class="titlebar-btn" id="titlebar-minimize">_</div>
-      <div class="titlebar-btn" id="titlebar-maximize">◻</div>
-      <div class="titlebar-btn" id="titlebar-close">✕</div>
+      <div class="titlebar-btn" id="titlebar-minimize"></div>
+      <div class="titlebar-btn" id="titlebar-maximize"></div>
+      <div class="titlebar-btn" id="titlebar-close"></div>
     </div>
   </div>
 

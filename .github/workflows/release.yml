@@ -1,0 +1,54 @@
+name: Buduj i Wydaj (Windows & Linux)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-tauri:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            args: ''
+          - platform: 'ubuntu-22.04'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Pobieranie kodu
+        uses: actions/checkout@v4
+
+      - name: Instalacja Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalacja Rust (Stabilny)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Instalacja zależności Linuxa (Tylko dla Ubuntu)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Instalacja zależności Frontendu
+        working-directory: './Rduch LED Manager' # Wskazujemy folder z package.json
+        run: npm install
+
+      - name: Budowanie aplikacji (Tauri Action)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: './Rduch LED Manager'     # Wskazujemy folder dla środowiska Tauri
+          tagName: app-v__VERSION__
+          releaseName: 'Wersja v__VERSION__'
+          releaseBody: 'Oto gotowe pliki instalacyjne aplikacji.'
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

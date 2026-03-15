@@ -4,8 +4,6 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 // ============================================================================
 // 1. DANE I SŁOWNIKI
 // ============================================================================
-
-// Słownik czcionki 5x7 (uzupełnij resztę alfabetu analogicznie)
 const font5x7: Record<string, number[]> = {
   'A': [14, 17, 17, 31, 17, 17, 17], 'B': [30, 17, 17, 30, 17, 17, 30],
   'C': [14, 17, 16, 16, 16, 17, 14], 'D': [30, 17, 17, 17, 17, 17, 30],
@@ -16,11 +14,9 @@ const font5x7: Record<string, number[]> = {
   'i': [4, 0, 12, 4, 4, 4, 14], 'm': [0, 0, 26, 21, 21, 17, 17],
   't': [8, 30, 8, 8, 8, 9, 6], 'w': [0, 0, 17, 17, 21, 21, 10],
   ' ': [0, 0, 0, 0, 0, 0, 0],
-  // Pusta ramka dla znaków, których nie ma w słowniku:
   'default': [31, 17, 17, 17, 17, 17, 31]
 };
 
-// Ikonki SVG do drzewa kategorii
 const icons = {
   folder: `<svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
   playlist: `<svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>`,
@@ -28,15 +24,64 @@ const icons = {
   chevron: `<svg class="category-icon chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`
 };
 
-
 document.addEventListener("DOMContentLoaded", () => {
+  // --- BLOKADA POWIĘKSZANIA (Touchpad & Klawiatura) ---
+  document.addEventListener('wheel', (e) => {
+    if (e.ctrlKey) e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=')) {
+      e.preventDefault();
+    }
+  });
+  
   // ============================================================================
   // 2. OBSŁUGA GŁÓWNEGO OKNA (Pasek Tytułowy)
   // ============================================================================
   const appWindow = getCurrentWindow();
-  document.getElementById('titlebar-minimize')?.addEventListener('click', () => appWindow.minimize());
-  document.getElementById('titlebar-maximize')?.addEventListener('click', () => appWindow.toggleMaximize());
-  document.getElementById('titlebar-close')?.addEventListener('click', () => appWindow.close());
+
+  // Wektorowe, idealnie ostre ikony dla przycisków okna
+  const svgMinimize = `<svg width="10" height="10" viewBox="0 0 10 10"><path d="M 0,5 10,5" stroke="currentColor" stroke-width="1.5"/></svg>`;
+  const svgMaximize = `<svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
+  const svgRestore = `<svg width="10" height="10" viewBox="0 0 10 10"><rect x="2.5" y="0.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M 2.5,2.5 L 0.5,2.5 L 0.5,9.5 L 7.5,9.5 L 7.5,7.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
+  const svgClose = `<svg width="10" height="10" viewBox="0 0 10 10"><path d="M 0,0 10,10 M 10,0 0,10" stroke="currentColor" stroke-width="1.5"/></svg>`;
+
+  const minBtn = document.getElementById('titlebar-minimize');
+  const maxBtn = document.getElementById('titlebar-maximize');
+  const closeBtn = document.getElementById('titlebar-close');
+
+  if (minBtn) {
+    minBtn.innerHTML = svgMinimize;
+    minBtn.addEventListener('click', () => appWindow.minimize());
+  }
+
+  if (closeBtn) {
+    closeBtn.innerHTML = svgClose;
+    closeBtn.addEventListener('click', () => appWindow.close());
+  }
+
+  if (maxBtn) {
+    // Funkcja badająca stan okna i podmieniająca ikonę (Pełny ekran vs Okno)
+    const updateMaximizeIcon = async () => {
+      const isMaximized = await appWindow.isMaximized();
+      maxBtn.innerHTML = isMaximized ? svgRestore : svgMaximize;
+    };
+
+    // Ustaw poprawną ikonę podczas startu aplikacji
+    updateMaximizeIcon();
+
+    // Ręczne kliknięcie w przycisk
+    maxBtn.addEventListener('click', async () => {
+      await appWindow.toggleMaximize();
+      await updateMaximizeIcon();
+    });
+
+    // Nasłuchiwanie na zmiany z zewnątrz (np. gdy przeciągniesz okno myszką do górnej krawędzi w Windowsie)
+    appWindow.onResized(async () => {
+      await updateMaximizeIcon();
+    });
+  }
 
   // ============================================================================
   // 3. SYMULATOR RDUCH (Canvas & Edytor)
@@ -94,8 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const selStart = editor.selectionStart;
       const selEnd = editor.selectionEnd;
 
-      let r = 0;
-      let c = 0;
+      let r = 0, c = 0;
 
       for (let i = 0; i <= text.length; i++) {
         if (r >= rows) break;
@@ -103,7 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const x = c * cellW;
         const y = r * cellH;
 
-        // Rysowanie tła zaznaczenia tekstu (pomaga przy niewidzialnym textarea)
         if (i >= selStart && i < selEnd) {
           ctx!.fillStyle = "rgba(255, 170, 0, 0.25)";
           ctx!.shadowBlur = 0;
@@ -123,12 +166,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Nasłuchiwacze edytora
     editor.addEventListener("input", renderScreen);
     editor.addEventListener("keyup", renderScreen);
-    editor.addEventListener("mouseup", renderScreen); // Odświeża zaznaczenie po kliknięciu myszką
+    editor.addEventListener("mouseup", renderScreen);
 
-    // Przyciski formatowania
     function applyFormatting(formatter: (text: string) => string) {
       const start = editor.selectionStart;
       const end = editor.selectionEnd;
@@ -170,7 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadSdBtn = document.getElementById("loadSdBtn") as HTMLButtonElement;
   const loadSdBtnText = document.getElementById("loadSdBtnText") as HTMLSpanElement;
   const driveList = document.getElementById("driveList") as HTMLDivElement;
-
   const libraryTree = document.getElementById("libraryTree") as HTMLDivElement;
   const errorBox = document.getElementById("errorBox") as HTMLDivElement;
   const errorList = document.getElementById("errorList") as HTMLUListElement;
@@ -193,14 +233,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return html;
   }
 
-  // Zamykanie listy dysków po kliknięciu poza nią
   document.addEventListener('click', (e) => {
     if (loadSdBtn && driveList && !loadSdBtn.contains(e.target as Node) && !driveList.contains(e.target as Node)) {
       driveList.style.display = 'none';
     }
   });
 
-  // Krok 1: Wywołanie listy dysków po kliknięciu
   if (loadSdBtn) {
     loadSdBtn.addEventListener("click", async () => {
       try {
@@ -220,7 +258,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         driveList.style.display = driveList.style.display === 'block' ? 'none' : 'block';
 
-        // Krok 2: Załadowanie konkretnego dysku po jego wybraniu
         document.querySelectorAll('.drive-item').forEach(item => {
           item.addEventListener('click', async (e) => {
             const path = (e.currentTarget as HTMLElement).getAttribute('data-path');
@@ -238,7 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
               loadSdBtnText.textContent = `Załadowano: ${path} (Zmień)`;
               currentSdPath = result.path;
 
-              // Walidacja błędów
               if (result.errors.length > 0) {
                 errorBox.style.display = "block";
                 errorList.innerHTML = result.errors.map((err: any) =>
@@ -248,7 +284,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 errorBox.style.display = "none";
               }
 
-              // Renderowanie drzewa
               let html = "";
               html += buildCategory("Playlisty", icons.playlist, result.playlists, "var(--accent)");
               html += buildCategory("Ekrany", icons.screen, result.screens, "#8be9fd");
@@ -259,8 +294,6 @@ document.addEventListener("DOMContentLoaded", () => {
               }
 
               libraryTree.innerHTML = html;
-
-              // Czyścimy pole wyszukiwania przy nowym ładowaniu
               if (searchInput) searchInput.value = "";
 
             } catch (err) {
@@ -276,7 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Otwieranie eksploratora plików
   if (openExplorerBtn) {
     openExplorerBtn.addEventListener("click", () => {
       if (currentSdPath) invoke("open_in_explorer", { path: currentSdPath });
@@ -315,5 +347,4 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
-
 });

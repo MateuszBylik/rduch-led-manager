@@ -33,17 +33,40 @@ body {
   border-bottom: 1px solid #333;
 }
 
+/* --- Dodaj to dla Ikonki --- */
+.titlebar-icon {
+  width: 35px;
+  height: 35px;
+  padding: 6px 0 6px 12px;
+  /* Marginesy, żeby ikona ładnie leżała */
+  pointer-events: none;
+  /* Pozwala przeciągać okno łapiąc za ikonkę */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Podmień te 3 klasy na poniższe --- */
 .titlebar-title {
-  padding-left: 15px;
+  padding-left: 10px;
+  /* Zmniejszyłem trochę lewy margines, bo doszła ikona */
   font-size: 0.85rem;
   color: #bbb;
   font-weight: bold;
   flex-grow: 1;
+  pointer-events: none;
 }
 
 .titlebar-buttons {
   display: flex;
   height: 100%;
+  pointer-events: auto;
+
+  /* KLUCZOWA POPRAWKA NA ROZCIĄGANIE OKNA: */
+  margin-right: 4px;
+  /* Odsuwa przyciski od skrajnej prawej krawędzi (strefy systemu) */
+  margin-top: 2px;
+  /* Odsuwa od górnej krawędzi */
 }
 
 .titlebar-btn {
@@ -51,10 +74,13 @@ body {
   justify-content: center;
   align-items: center;
   width: 45px;
-  height: 100%;
+  height: calc(100% - 4px);
+  /* Pomniejszamy przyciski z uwagi na marginesy */
   color: #bbb;
   cursor: pointer;
   transition: background 0.2s;
+  border-radius: 6px;
+  /* Lekkie zaokrąglenie w stylu Windows 11 / macOS */
 }
 
 .titlebar-btn:hover {

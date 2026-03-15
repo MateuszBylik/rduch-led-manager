@@ -1,4 +1,3 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::Serialize;
@@ -7,7 +6,6 @@ use std::fs;
 use std::process::Command;
 use sysinfo::Disks;
 
-// Struktury, które polecą jako JSON do frontendu
 #[derive(Serialize)]
 struct Song {
     number: String,
@@ -37,7 +35,6 @@ struct DriveInfo {
     is_removable: bool,
 }
 
-// Komenda: Otwiera systemowy eksplorator plików
 #[tauri::command]
 fn open_in_explorer(path: String) {
     #[cfg(target_os = "windows")]
@@ -62,12 +59,10 @@ fn get_drives() -> Vec<DriveInfo> {
             is_removable: disk.is_removable(),
         });
     }
-    // Sortujemy: najpierw wymienne (np. karty SD, pendrive'y)
     drives.sort_by(|a, b| b.is_removable.cmp(&a.is_removable));
     drives
 }
 
-// Komenda: Wybiera folder i parsuje jego zawartość
 #[tauri::command]
 fn load_sd_card(path: String) -> Option<ParseResult> {
     let folder = std::path::PathBuf::from(&path);
@@ -79,7 +74,6 @@ fn load_sd_card(path: String) -> Option<ParseResult> {
     let mut screens = Vec::new();
     let mut categories: HashMap<String, Vec<Song>> = HashMap::new();
     
-    // TRZY OSOBNE ZBIORY DUPLIKATÓW
     let mut seen_playlist_nums: HashSet<String> = HashSet::new();
     let mut seen_screen_nums: HashSet<String> = HashSet::new();
     let mut seen_other_nums: HashSet<String> = HashSet::new();
@@ -98,12 +92,10 @@ fn load_sd_card(path: String) -> Option<ParseResult> {
                         let filename = file_path.file_name().unwrap().to_string_lossy().to_string();
                         let name_without_ext = file_path.file_stem().unwrap().to_string_lossy().to_string();
                         
-                        // Rozdzielamy numer i tytuł (działa teraz też dla playlist i ekranów)
                         if let Some((number, title)) = name_without_ext.split_once(' ') {
                             let number = number.to_string();
                             let title = title.to_string();
 
-                            // 1. Walidacja limitu znaków (do 30)
                             if title.chars().count() > 30 {
                                 errors.push(ValidationError {
                                     filename: format!("{}/{}", dir_name, filename),
@@ -111,8 +103,6 @@ fn load_sd_card(path: String) -> Option<ParseResult> {
                                 });
                             }
 
-                            // 2. Walidacja duplikatów w osobnych grupach
-                            // Metoda insert() zwraca false, jeśli element już istniał w zbiorze
                             let is_duplicate = if dir_name == "playlist_dir" {
                                 !seen_playlist_nums.insert(number.clone())
                             } else if dir_name == "screen_dir" {
@@ -134,7 +124,6 @@ fn load_sd_card(path: String) -> Option<ParseResult> {
 
                             let song = Song { number, title, filename };
 
-                            // Grupowanie
                             if dir_name == "playlist_dir" {
                                 playlists.push(song);
                             } else if dir_name == "screen_dir" {
@@ -155,8 +144,8 @@ fn load_sd_card(path: String) -> Option<ParseResult> {
 
 fn main() {
     tauri::Builder::default()
-        // Tutaj rejestrujemy nasze komendy, żeby TypeScript miał do nich dostęp
-        .invoke_handler(tauri::generate_handler![load_sd_card, open_in_explorer])
+        // DODANO: get_drives (to naprawia błąd ładowania dysków)
+        .invoke_handler(tauri::generate_handler![get_drives, load_sd_card, open_in_explorer])
         .run(tauri::generate_context!())
         .expect("Błąd podczas uruchamiania aplikacji Rduch LED!");
 }

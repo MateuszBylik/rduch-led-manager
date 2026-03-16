@@ -553,7 +553,7 @@ details .item-list li {
   justify-content: center;
 }
 
-#btnPrevScreen, #btnNextScreen {
+#btnPrevScreen, #btnNextScreen, #btnPrevList, #btnNextList {
   margin: auto;
 }
 
